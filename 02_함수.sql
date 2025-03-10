@@ -21,7 +21,7 @@ FROM EMPLOYEE;
 -- INSTR(컬럼명 | 문자열, '찾을 문자열' [, 찾기 시작할 위치 [, 순번]])
 -- 지정한 위치부터 지정한 순번째로 검색되는 문자의 위치를 반환
 
--- AABAACAABBAA
+-- ex) AABAACAABBAA
 
 -- 문자열을 앞에서부터 검색하여 첫번째 B의 위치 조회
 SELECT INSTR('AABAACAABBAA' , 'B' )
@@ -90,7 +90,7 @@ WHERE MOD(EMP_ID, 2) = 0; -- 나눴을 때 나머지가 0인
 -- EMPLOYEE 테이블에서 사번이 홀수인 사원의 사번, 이름 조회
 SELECT EMP_ID, EMP_NAME
 FROM EMPLOYEE
-WHERE MOD(EMP_ID, 2) <> 0; -- 나눴을 때 나머지가 0인
+WHERE MOD(EMP_ID, 2) <> 0; -- 나눴을 때 나머지가 0이 아닌
 
 -- ROUND(숫자 | 컬럼명 [,소수점 위치]) : 반올림
 SELECT ROUND(123.456) FROM DUAL; -- 123, 소수점 첫번째 자리에서 반올림
@@ -247,7 +247,7 @@ SELECT TO_NUMBER('1,000,000', '9,999,999') + 500000 FROM DUAL;
 -- NVL(컬럼명, 컬럼값이 NULL일 때 바꿀값) : NULL인 컬럼값을 다른 값으로 변경
 SELECT * FROM EMPLOYEE;
 
--- NULL과 산술연산을 진행하며면 괄
+-- NULL과 산술연산을 진행하면 결과는 무조건 NULL
 SELECT EMP_NAME, SALARY, NVL(BONUS, 0), SALARY * NVL(BONUS,0)
 FROM EMPLOYEE;
 
@@ -264,7 +264,7 @@ FROM EMPLOYEE;
 -- 선택 함수
 -- 여러가지 경우에 따라 알맞은 결과를 선택할 수 있음
 
--- DECODE(계산식 | 컬럼명, 조건값1, 선택값1, 조건값2, 선택값2, ..., 아무것도 일치하지)
+-- DECODE(계산식 | 컬럼명, 조건값1, 선택값1, 조건값2, 선택값2, ..., 아무것도 일치하지 않을 때)
 -- 비교하고자 하는 값 또는 컬럼이 조건식과 같으면 결과 값 반환
 
 -- 직원의 성별 구하기
