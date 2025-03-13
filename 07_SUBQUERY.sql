@@ -432,11 +432,10 @@ WHERE (DEPT_CODE, JOB_CODE) = (SELECT DEPT_CODE, JOB_CODE
 --    사번, 이름, 부서코드, 사수번호, 주민번호, 입사일
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, MANAGER_ID, EMP_NO, HIRE_DATE
 FROM EMPLOYEE
-WHERE (DEPT_CODE, MANAGER_ID) =
-(SELECT DEPT_CODE, MANAGER_ID
-FROM EMPLOYEE
-WHERE EMP_NO LIKE '77%'
-AND SUBSTR(EMP_NO, 8, 1) = '2');
+WHERE (DEPT_CODE, MANAGER_ID) = (SELECT DEPT_CODE, MANAGER_ID
+														   	FROM EMPLOYEE
+															  WHERE EMP_NO LIKE '77%'
+															  AND SUBSTR(EMP_NO, 8, 1) = '2');
 
 --------------------------------------------------------------
 
@@ -639,7 +638,7 @@ SELECT *
 FROM (SELECT EMP_NAME 이름, DEPT_TITLE 부서
 			FROM EMPLOYEE
 			JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID))
-WHERE 부서 = '기술지원부';
+WHERE 부서 = '기술지원부'; 
 
 -- 언제 활용?
 -- 인라인뷰를 활용한 TOP-N 분석
@@ -712,5 +711,99 @@ WHERE ROWNUM <= 10;
 -- 사원별 급여 순위
 -- RANK() OVER(정렬순서) / DENSE_RANK() OVER(정렬순서)
 SELECT RANK() OVER(ORDER BY SALARY DESC) 순위, EMP_NAME, SALARY
-
 FROM EMPLOYEE;
+-- 19	전형돈	2000000
+-- 19	윤은해	2000000
+-- 21	박나라	1800000
+
+-- DENSE_RANK() OVER : 동일한 순위 이후의 등수를 이후 순위로 계산
+-- EX) 공동1위가 2명이어도 다음 순위는 2위
+SELECT DENSE_RANK() OVER(ORDER BY SALARY DESC) 순위, EMP_NAME, SALARY
+FROM EMPLOYEE;
+-- 19	전형돈	2000000
+-- 19	윤은해	2000000
+-- 20	박나라	1800000
+
+--------------------------------------------------------------
+
+-- 1. 전지연 사원이 속해있는 부서원들을 조회하시오 (단, 전지연은 제외)
+-- 사번, 사원명, 전화번호, 고용일, 부서명
+SELECT EMP_ID, EMP_NAME, PHONE, HIRE_DATE, DEPT_TITLE
+FROM EMPLOYEE
+JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+WHERE DEPT_TITLE = (SELECT DEPT_TITLE
+									 FROM EMPLOYEE
+									 JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+									 WHERE EMP_NAME = '전지연')
+ AND EMP_NAME != '전지연';
+
+-- 2. 고용일이 2000년도 이후인 사원들 중 급여가 가장 높은 사원의
+-- 사번, 사원명, 전화번호, 급여, 직급명을 조회하시오.
+SELECT EMP_ID, EMP_NAME, PHONE, SALARY, JOB_NAME
+FROM EMPLOYEE
+JOIN JOB USING (JOB_CODE)
+WHERE SALARY = (SELECT MAX(SALARY)
+								FROM EMPLOYEE
+								WHERE EXTRACT(YEAR FROM HIRE_DATE) >= 2000);
+
+-- 3. 노옹철 사원과 같은 부서, 같은 직급인 사원을 조회하시오. (단, 노옹철 사원은 제외)
+-- 사번, 이름, 부서코드, 직급코드, 부서명, 직급명
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, JOB_CODE, DEPT_TITLE, JOB_NAME
+FROM EMPLOYEE
+JOIN JOB USING (JOB_CODE)
+LEFT JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+WHERE (DEPT_TITLE, JOB_NAME) = (SELECT DEPT_TITLE, JOB_NAME
+														 FROM EMPLOYEE
+														 JOIN JOB USING (JOB_CODE)
+														 LEFT JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+														 WHERE EMP_NAME = '노옹철')
+AND EMP_NAME <> '노옹철';
+
+-- 4. 2000년도에 입사한 사원과 부서와 직급이 같은 사원을 조회하시오
+-- 사번, 이름, 부서코드, 직급코드, 고용일
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, JOB_CODE, HIRE_DATE
+FROM EMPLOYEE
+WHERE (DEPT_CODE, JOB_CODE) = (SELECT DEPT_CODE, JOB_CODE
+															 FROM EMPLOYEE
+															 WHERE EXTRACT(YEAR FROM HIRE_DATE) = 2000);
+
+-- 5. 77년생 여자 사원과 동일한 부서이면서 동일한 사수를 가지고 있는 사원을 조회하시오
+-- 사번, 이름, 부서코드, 사수번호, 주민번호, 고용일
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, MANAGER_ID, EMP_NO, HIRE_DATE
+FROM EMPLOYEE
+WHERE (DEPT_CODE, MANAGER_ID) = (SELECT DEPT_CODE, MANAGER_ID
+																 FROM EMPLOYEE
+																 WHERE EMP_NO LIKE '77%'
+																 AND SUBSTR(EMP_NO, 8, 1) ='2');
+
+
+-- 6. 부서별 입사일이 가장 빠른 사원의
+-- 사번, 이름, 부서명(NULL이면 '소속없음'), 직급명, 입사일을 조회하고
+-- 입사일이 빠른 순으로 조회하시오
+-- 단, 퇴사한 직원은 제외하고 조회..
+SELECT EMP_ID, EMP_NAME, NVL(DEPT_TITLE, '소속없음'), JOB_NAME, HIRE_DATE
+FROM EMPLOYEE MAIN
+JOIN JOB USING (JOB_CODE)
+LEFT JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+WHERE HIRE_DATE = (SELECT MIN(HIRE_DATE)
+									 FROM EMPLOYEE SUB
+									 WHERE (MAIN.DEPT_CODE = SUB.DEPT_CODE)
+									 AND ENT_YN = 'N'
+									 OR MAIN.DEPT_CODE IS NULL AND SUB.DEPT_CODE IS NULL)
+ORDER BY HIRE_DATE;
+
+
+-- 7. 직급별 나이가 가장 어린 직원의
+-- 사번, 이름, 직급명, 나이, 보너스 포함 연봉을 조회하고
+-- 나이순으로 내림차순 정렬하세요
+-- 단 연봉은 \124,800,000 으로 출력되게 하세요. (\ : 원 단위 기호)
+SELECT EMP_ID, EMP_NAME, JOB_NAME, 
+FLOOR(MONTHS_BETWEEN(SYSDATE, TO_DATE(SUBSTR(EMP_NO, 1, 6), 'RRMMDD')) / 12 ) "나이", 
+TO_CHAR(SALARY * (1 + NVL(BONUS, 0)) * 12, 'L999,999,999') "보너스 포함 연봉"
+FROM EMPLOYEE MAIN
+--JOIN JOB USING(JOB_CODE)
+JOIN JOB J ON (MAIN.JOB_CODE = J.JOB_CODE)
+WHERE SUBSTR(EMP_NO, 1, 6) = (SELECT MAX(SUBSTR(EMP_NO, 1, 6))
+															FROM EMPLOYEE SUB 
+															WHERE MAIN.JOB_CODE = SUB.JOB_CODE)
+ORDER BY "나이" DESC;
