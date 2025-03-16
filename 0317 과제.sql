@@ -120,28 +120,23 @@ WHERE STATUS = 'N';
 
 -- 2. 홍길동 고객이 2024년도에 본인이 주문한 전체 내역을 조회하고자 한다.
 --    주문번호, 주문날짜, 처리상태 조회하시오 😀
-SELECT NAME
-FROM CUSTOMERS
-WHERE NAME = '홍길동';
 
 SELECT ORDER_ID 주문번호, ORDER_DATE 주문날짜, STATUS 처리상태
 FROM ORDERS
 JOIN CUSTOMERS USING (CUSTOMER_ID)
 WHERE NAME = '홍길동'
-AND ORDER_DATE(EXTRACT(YEAR FROM 'YYYY') = '2024');
+AND ORDER_DATE BETWEEN '2024-01-01' AND '2024-12-31';
 
--- 아 뭔가 될랑말랑 하는데...
 
 -- 3. 유관순 고객이 지금껏 주문한 상품의 수량 별 금액을 조회하려고 한다.
 --    주문번호, 상품명, 수량, 개별금액, 주문별금액을 조회하시오 😀
-SELECT ORDER_DETAILS_ID 주문번호, PRODUCT_NAME 상품명, QUANTITY 수량, 
-PRICE_PER_UNIT 개별금액, (PRICE_PER_UNIT * QUANTITY) 주문별금액합계
+SELECT ORDER_ID 주문번호, PRODUCT_NAME 상품명, QUANTITY 수량, 
+PRICE_PER_UNIT 개별금액, (QUANTITY * PRICE_PER_UNIT) 주문별합계금액
 FROM ORDERS
-JOIN
-
-
-
-
-
+JOIN ORDER_DETAILS USING (ORDER_ID)
+JOIN CUSTOMERS USING (CUSTOMER_ID)
+JOIN PRODUCTS USING (PRODUCT_ID)
+WHERE NAME = '유관순'
+ORDER BY 주문번호;
 
 
