@@ -50,7 +50,7 @@ ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
 
 -- [작성법]
 -- CREATE USER 사용자명 IDENTIFIED BY 비밀번호;
-CREATE USER kh_shop1 IDENTIFIED BY 1234;
+CREATE USER kh_shop IDENTIFIED BY 1234;
 
 -- 2. 새 연결(접속) 추가
 --ORA-01045: 사용자 HBR_SAMPLE는 CREATE SESSION 권한을 가지고있지 않음; 로그온이 거절되었습니다
@@ -59,7 +59,7 @@ CREATE USER kh_shop1 IDENTIFIED BY 1234;
 -- 3. 접속 권한 부여 (sys -> 사용자 계정)
 -- [권한 부여 작성법]
 -- GRANT 권한, 권한, 권한... TO 사용자명;
-GRANT CREATE SESSION TO kh_shop1;
+GRANT CREATE SESSION TO kh_shop;
 
 -- 4. 다시 연결 --> 성공!!
 
@@ -73,9 +73,9 @@ CREATE TABLE TB_TEST(
 -- + 데이터를 저장할 수 있는 공간(TABLESPACE) 할당
 
 -- 6. (sys) 테이블 생성 권한 부여 + TABLESPACE 할당
-GRANT CREATE TABLE TO kh_shop1;
+GRANT CREATE TABLE TO kh_shop;
 
-ALTER USER kh_shop1 
+ALTER USER kh_shop 
 DEFAULT TABLESPACE SYSTEM QUOTA UNLIMITED -- 시스템 무제한 할당
 ON SYSTEM;
 
@@ -100,7 +100,7 @@ CREATE TABLE TB_TEST(
 --> CREATE TABLE , CREATE SEQUENCE
 
 -- (sys) sample 계정에 CONNECT, RESOURCE ROLE 부여
-GRANT CONNECT, RESOURCE TO kh_shop1;
+GRANT CONNECT, RESOURCE TO kh_shop;
 
 ----------------------------------------------------------------------
 
