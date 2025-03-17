@@ -41,67 +41,15 @@
  * 		뷰에 대해 SELECT만 가능하도록 지정.
  * */
 
-<<<<<<< HEAD
-/* VIEW 를 생성하기 위해서는 권한이 필요하다! */
-=======
 /* VIEW 를 생성하기 위해서는 권한이 필요하다 ! */
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- (SYS 관리자 계정 접속)
 ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
 --> 계정명이 언급되는 상황에서는 이 구문 필수적으로 진행!
-<<<<<<< HEAD
--- C## 안 붙이겠다.
-=======
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- VIEW 생성 권한 부여
 GRANT CREATE VIEW TO kh;
 
-<<<<<<< HEAD
-CREATE VIEW V_EMP
-AS SELECT * FROM EMPLOYEE;
--- ORA-01031: 권한이 불충분합니다. (SYS관리자 계정 접속 전!!)
--- 위 구문 마치고 다시 kh로 돌아와서 구문 실행!
-
---> VIEW 생성 구문 기초 문법!!!
-
-SELECT * FROM V_EMP;
-
--- 사번, 이름, 부서명, 직급명 조회하기 위한 VIEW 생성
-CREATE OR REPLACE VIEW V_EMP
-AS
-SELECT EMP_ID 사번, EMP_NAME 이름, 
-NVL(DEPT_TITLE, '없음') 부서명, JOB_NAME 직급명
-FROM EMPLOYEE
-JOIN JOB USING (JOB_CODE)
-LEFT JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
-ORDER BY 사번 ASC;
--- ORA-00955: 기존의 객체가 이름을 사용하고 있습니다.
--- -> 오류를 고치기 위해 위에 CREATE OR RELACE VIEW로 바꿔줌
-
--- V_EMP에서 대리 직원들을 이름 오른차순으로 조회
--- VIEW 조회 결과로 보이는 컬럼명을 이용해야 한다!!
-SELECT * FROM V_EMP -- 현재 상태가 위에서 바꿔놓은 형태임
-WHERE 직급명 = '대리'
-ORDER BY 이름;
-
-----------------------------------------------------------------------
-
-/* VIEW를 이용해서 DML 사용하기 + 문제점 확인 */
-
--- DEPARTMENT 테이블을 복사한 DEPT_COPY2 생성(테이블로 생성 VIEW 말고 ㅋㅋ)
-CREATE TABLE DEPT_COPY2
-AS SELECT * FROM DEPARTMENT;
-
--- DEPT_COPY2 테이블에서 DEPT_ID, LOCATION_ID 컬럼만 이용해서
--- V_DCOPY2 VIEW 생성
-CREATE OR REPLACE VIEW V_DCOPY2
-AS SELECT DEPT_ID, LOCATION_ID 
-FROM DEPT_COPY2;
-
--- V_DCOPY2 VIEW 생성 확인하기
-=======
 -- ORA-01031: 권한이 불충분합니다
 -- kh 계정으로 접속
 -- VIEW 구문 실행
@@ -151,32 +99,11 @@ AS SELECT DEPT_ID, LOCATION_ID FROM DEPT_COPY2;
 
 
 -- V_DCOPY2 VIEW 생성 확인
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 SELECT * FROM V_DCOPY2;
 
 -- 원본 테이블
 SELECT * FROM DEPT_COPY2;
 
-<<<<<<< HEAD
--- V_DCOPY2 VIEW를 이용해서 INSERT 수행
-INSERT INTO V_DCOPY2
-VALUES ('D0', 'L2');
--- 가상 테이블인 VIEW 인데도 INSERT가 성공함!
-
-SELECT * FROM DEPT_COPY2;
--- D0, NULL, L2 삽입
-
--- VIEW에 INSERT를 수행했지만
--- VIEW 생성 시 사용한 원본 테이블에도
--- 값이 함께 INSERT 됨을 확인!!
-
---> 모든 컬럼 값이 INSERT 된 것이 아니라
--- VIEW를 생성할 때 사용된 컬럼에만 데이터가 삽입 되었고
--- 사용되지 않은 컬럼(DEPT_TITLE)에는 NULL이 들어감!
---> NULL은 DB의 무결성을 약하게 만드는 주요 원인이다!
---> 그러므로 가능하면 의도되지 않은 NULL은 존재하지 않게 해야 한다.
--->> 찐막으로 VIEW를 이용한 DML은 사용을 지양한다!!!!
-=======
 
 -- V_DCOPY2 VIEW를 이용해서 INSERT 수행
 INSERT INTO V_DCOPY2
@@ -198,31 +125,11 @@ SELECT * FROM DEPT_COPY2;
 -- 사용되지 않은 컬럼(DEPT_TITLE)에는 NULL 이 들어감!
 --> NULL 은 DB의 무결성을 약하게 만드는 주요 원인
 -- 가능하면 의도되지 않은 NULL은 존재하지 않게 해야한다.
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 /* 무결성 : 데이터베이스에서 데이터를 정확하고 일관되게
  * 				유지하기 위한 중요한 개념.
  * 
  * 데이터의 정확성, 일관성, 신뢰성을 보장함.
-<<<<<<< HEAD
- */
-
-/* WITH READ ONLY 옵션 사용하기 */
--- 왜 사용할까?
---> VIEW를 이용해서 DML(INSER/UPDATE/DELETE)을 막기 위해서!
-
-CREATE OR REPLACE VIEW V_DCOPY2
-AS SELECT DEPT_ID, LOCATION_ID
-FROM DEPT_COPY2
-WITH READ ONLY; -- 수행하면 읽기 전용
-
--- INSERT 수행
-INSERT INTO V_DCOPY2
-VALUES ('D0', 'L3');
--- ORA-42399: 읽기 전용 뷰에서는 DML 작업을 수행할 수 없습니다.
-
-----------------------------------------------------------------------
-=======
  * */
 
 
@@ -243,7 +150,6 @@ VALUES('D0', 'L3');
 -- ORA-42399: 읽기 전용 뷰에서는 DML 작업을 수행할 수 없습니다.
 
 ------------------------------------------------------
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 /* SEQUENCE(순서, 연속)
  * - 순차적으로 일정한 간격의 숫자(번호)를 발생시키는 객체
@@ -255,21 +161,12 @@ VALUES('D0', 'L3');
  * 
  * PK가 지정된 컬럼에 삽입될 값을 생성할 때 SEQUENCE를 이용하면 좋다!
  * 
-<<<<<<< HEAD
- *   [작성법]
-  CREATE SEQUENCE 시퀀스이름
-  [START WITH 숫자] -- 처음 발생시킬 시작값 지정, 생략하면 1이 기본
-  [INCREMENT BY 숫자] -- 다음 값에 대한 증가치, 생략하면 1이 기본
-  [MAXVALUE 숫자 | NOMAXVALUE] -- 발생시킬 최대값 지정, 생략하면 기본값은 10^27 - 1 (즉, 매우 큰 값)입니다 / NOMAXVALUE를 사용하면 최대값 제한이 없음을 의미
-  [MINVALUE 숫자 | NOMINVALUE] -- 최소값 지정 , 기본값은 -10^26 /  NOMINVALUE를 사용하면 최소값 제한이 없음을 의미
-=======
  * [작성법]
   CREATE SEQUENCE 시퀀스이름
   [STRAT WITH 숫자] -- 처음 발생시킬 시작값 지정, 생략하면 1이 기본
   [INCREMENT BY 숫자] -- 다음 값에 대한 증가치, 생략하면 1이 기본
   [MAXVALUE 숫자 | NOMAXVALUE(기본값)] -- 발생시킬 최대값 지정, 생략하면 기본값은 10^27 - 1 (즉, 매우 큰 값)입니다 / NOMAXVALUE를 사용하면 최대값 제한이 없음을 의미
   [MINVALUE 숫자 | NOMINVALUE(기본값)] -- 최소값 지정 , 기본값은 -10^26 /  NOMINVALUE를 사용하면 최소값 제한이 없음을 의미
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
   [CYCLE | NOCYCLE] -- 값 순환 여부 지정 , 기본값은 NOCYCLE
 		-- CYCLE: 값이 최대값에 도달하면 다시 최소값부터 순환
 		-- NOCYCLE: 값을 순환하지 않고, 최대값에 도달하면 오류를 발생시킴
@@ -290,23 +187,6 @@ VALUES('D0', 'L3');
  * 2) 시퀀스명.CURRVAL : 현재 시퀀스 번호를 얻어옴.
  * 						 단, 시퀀스가 생성 되자마자 호출할 경우 오류 발생.
  * 						== 마지막으로 호출한 NEXTVAL 값을 반환
-<<<<<<< HEAD
- * 
- * */
-
-/* 시퀀스 생성하기 */
-CREATE SEQUENCE SEQ_TEST_NO
-START WITH 100 -- 시작번호 100
-INCREMENT BY 5 -- NEXTVAL 호출 후 5씩 증가
-MAXVALUE 150	 -- 증가 가능한 최대값이 150
-NOMINVALUE		 -- 최소값 없음
-NOCYCLE			 	 -- 반복 안함
-NOCACHE;			 -- 미리 만들어둘 시퀀스 번호 없음
-
-/* 시퀀스 삭제하기 */
-DROP SEQUENCE SEQ_TEST_NO;
-
-=======
  * */
 
 
@@ -325,7 +205,6 @@ NOCACHE;			 -- 미리 만들어둘 시퀀스 번호 없음
 DROP SEQUENCE SEQ_TEST_NO;
 
 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 -- 시퀀스 테스트할 테이블 생성
 CREATE TABLE TB_TEST(
 	TEST_NO NUMBER PRIMARY KEY,
@@ -334,22 +213,6 @@ CREATE TABLE TB_TEST(
 
 -- 현재 시퀀스 번호 확인
 SELECT SEQ_TEST_NO.CURRVAL FROM DUAL;
-<<<<<<< HEAD
--- ORA-08002: 시퀀스 SEQ_TEST_NO.CURRVAL은 이 세션에서는 정의 되어 있지 않습니다.
---> CURRVAL의 정확한 의미는
--- 가장 최근 호출된 NEXTVAL의 값을 반환함을 뜻함
---> NEXTVAL을 호출한 적이 없어서 오류 발생!
-
---> 해결방법 : NEXTVAL 호출하기
-SELECT SEQ_TEST_NO.NEXTVAL FROM DUAL;
--- 시퀀스 생성 후 첫 NEXTVAL == START WITH 값인 100
-
-SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
--- 가장 최근 호출한 NEXTVAL 값이 100이니까!
-
--- NEXTVAL 을 호출할 때마다
--- INCREMENT BY 에 작성된 수만큼 증가하는지 확인
-=======
 -- ORA-08002: 시퀀스 SEQ_TEST_NO.CURRVAL은 이 세션에서는 정의 되어 있지 않습니다
 --> CURRVAL의 정확한 의미는
 -- 가장 최근 호출된 NEXTVAL의 값을 반환함을 뜻함
@@ -364,25 +227,10 @@ SELECT SEQ_TEST_NO.CURRVAL FROM DUAL; -- 100
 
 -- NEXTVAL 를 호출할 때 마다
 -- INCREMENT BY 에 작성된 수 만큼 증가하는지 확인
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 SELECT SEQ_TEST_NO.NEXTVAL FROM DUAL;
 -- 처음 : 100
 -- 1회 : 105
 -- 2회 : 110
-<<<<<<< HEAD
-
--- TB_TEST 테이블에 PK값을 SEQ_TEST_NO 시퀀스로 생성하기
-INSERT INTO TB_TEST
-VALUES (SEQ_TEST_NO.NEXTVAL, '짱구'); -- 125
-
-INSERT INTO TB_TEST
-VALUES (SEQ_TEST_NO.NEXTVAL, '철수'); -- 130
-
-INSERT INTO TB_TEST
-VALUES (SEQ_TEST_NO.NEXTVAL, '유리'); -- 135
-
-----------------------------------------------------------------------
-=======
 -- 3회 : 115
 -- 4회 : 120
 
@@ -399,75 +247,46 @@ VALUES (SEQ_TEST_NO.NEXTVAL, '유리'); -- 135
 SELECT * FROM TB_TEST;
 
 -----------------------------------------------
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- UPDATE 에서 시퀀스 사용하기
 -- '짱구'의 PK 컬럼값을
 -- SEQ_TEST_NO 시퀀스의 다음 생성값으로 변경하기
-<<<<<<< HEAD
-UPDATE TB_TEST
-SET TEST_NO = SEQ_TEST_NO.NEXTVAL
-WHERE TEST_NAME = '짱구';
--- ORA-08004: 시퀀스 SEQ_TEST_NO.NEXTVAL exceeds MAXVALUES
-=======
 
 UPDATE TB_TEST
 SET TEST_NO = SEQ_TEST_NO.NEXTVAL
 WHERE TEST_NAME = '짱구';
 -- ORA-08004: 시퀀스 SEQ_TEST_NO.NEXTVAL exceeds MAXVALUE은 사례로 될 수 없습니다
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 --> MAXVALUE 150 보다 더 증가할 수 없다!
 
 SELECT * FROM TB_TEST;
 
-<<<<<<< HEAD
-----------------------------------------------------------------------
-=======
 ------------------------------------------------------
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- SEQUENCE 변경 (ALTER)
 --> START WITH 빼고 모두 변경 가능!!
 
-<<<<<<< HEAD
-/* [작성법
- * ALTER SEQUENCE 시퀀스이름
- * [INCREMENT BY 숫자]
-=======
 /*
  * [작성법]
  * ALTER SEQUENCE 시퀀스이름
  * [INCREMENT BY 숫자] 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
  * [MAXVALUE 숫자 | NOMAXVALUE]
  * [MINVALUE 숫자 | NOMINVALUE]
  * [CYCLE | NOCYCLE]
  * [CACHE 숫자 | NOCACHE]
  * 
-<<<<<<< HEAD
-=======
  * 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
  * */
 
 -- SEQ_TEST_NO 의 MAXVALUE 값을 200으로 수정
 ALTER SEQUENCE SEQ_TEST_NO
-<<<<<<< HEAD
-MAXVALUE 200; -- 200까지 증가 ㅋㅋ
-=======
 MAXVALUE 200;
 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- 200까지 증가 시켜서 변경확인
 SELECT SEQ_TEST_NO.NEXTVAL FROM DUAL;
 
-<<<<<<< HEAD
-----------------------------------------------------------------------
-=======
 
 -----------------------------------------------
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 -- VIEW, SEQUENCE 삭제
 
@@ -477,11 +296,7 @@ DROP VIEW V_DCOPY2;
 -- SEQ_TEST_NO SEQUENCE 삭제
 DROP SEQUENCE SEQ_TEST_NO;
 
-<<<<<<< HEAD
-----------------------------------------------------------------------
-=======
 -------------------------------------------------------------------------------
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 /* INDEX(색인)
  * - SQL 구문 중 SELECT 처리 속도를 향상 시키기 위해 
@@ -514,38 +329,16 @@ DROP SEQUENCE SEQ_TEST_NO;
  *  CREATE [UNIQUE] INDEX 인덱스명
  *  ON 테이블명 (컬럼명[, 컬럼명 | 함수명]);
  * 
-<<<<<<< HEAD
- *  DROP INDEX 인덱스명; -- 삭제
- * 
- * 
- *  ** 인덱스가 자동 생성되는 경우 **
-
- *  -> PK ,FK, UNIQUE 제약조건이 설정된 컬럼에 대해 
- *    UNIQUE INDEX가 자동 생성된다. 
-
-=======
  *  DROP INDEX 인덱스명;
  * 
  * 
  *  ** 인덱스가 자동 생성되는 경우 **
  *  -> PK ,FK, UNIQUE 제약조건이 설정된 컬럼에 대해 
  *    UNIQUE INDEX가 자동 생성된다. 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
  * PK에 자동 생성되는 이유 : 기본 키는 중복을 허용하지 않고, NOT NULL이어야 하기 때문이다.
  * UNIQUE 제약조건 설정 컬럼에서 자동생성 되는 이유 : 중복을 허용하지 않는 고유 값을 보장해야하기 때문이다.
  * */
 
-<<<<<<< HEAD
-SELECT ROWID, EMP_ID, EMP_NAME
-FROM EMPLOYEE;
--- ROWID : 오라클에서 각 행의 고유한 주소를 나타내는 가상 컬럼 (물리적 주소)
--- 인덱스가 ROWID 저장함.
--- 인덱스는 컬럼의 값과 해당행의 ROWID를 매핑해서 저장함.
--- 걸럼값 -> 해당 행의 ROWID를 빠르게 찾아낼 수 있다.
-
--- 현재 사용자에 생성된 인덱스 목록 조회
-SELECT INDEX_NAME, TABLE_NAME, UNIQUENESS, STATUS
-=======
 
 SELECT ROWID, EMP_ID, EMP_NAME
 FROM EMPLOYEE;
@@ -557,39 +350,16 @@ FROM EMPLOYEE;
 -- 현재 사용자에 생성된 인덱스 목록 조회
 SELECT INDEX_NAME, TABLE_NAME, 
 UNIQUENESS, STATUS
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 FROM USER_INDEXES;
 
 -- EMPLOYEE 테이블의 EMP_NAME 컬럼에 인덱스 생성
 CREATE INDEX IDX_EMP_NAME
 ON EMPLOYEE (EMP_NAME);
-<<<<<<< HEAD
---> EMPLOYY 테이블의 EMP_NAME 컬럼에 대해 빠른 검색이 가능
-=======
 --> EMPLOYEE 테이블의 EMP_NAME 컬럼에 대해 빠른 검색이 가능
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 
 /*
  * 인덱스명 : IDX_EMP_NAME
  * 테이블명 : EMPLOYEE
-<<<<<<< HEAD
- * 컬럼명 : EMP_NAME
- * 목적 : EMP_NAME 이용한 컬럼 검색 속도 향상
- */
-
--- EMPLOYEE 테이블의 EMAIL 컬럼에 UNIQUE INDEX 생성
-CREATE UNIQUE INDEX IDX_NUIQUE_EMAIL
-ON EMPLOYEE (EMAIL);
-
--- UNIQUE INDEX는 중복 방지
--- EMAIL 컬럼에 중복되지 않는 고유한 값만 허용
---> 중복된 EMAIL 삽입 시 오류 발생!
-
-----------------------------------------------------------------------
-
--- 인덱스 성능 확인용 테이블 생성
-CREATE TABLE TB_IDX_TEST(
-=======
  * 컬럼명  : EMP_NAME
  * 목적 : EMP_NAME 이용한 컬럼 검색 속도 향상
  * */
@@ -608,28 +378,10 @@ ON EMPLOYEE (EMAIL);
 
 -- 인덱스 성능 확인용 테이블 생성
 CREATE TABLE TB_IDX_TEST (
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 	TEST_NO NUMBER PRIMARY KEY, -- 자동으로 UNIQUE INDEX 생성됨
 	TEST_ID VARCHAR2(20) NOT NULL
 );
 
-<<<<<<< HEAD
--- TB_IDX_TEST 테이블에
--- 샘플데이터 100만개 삽입 (PL/SQL 사용)
--- PL/SQL 이란??
--- 오라클 데이터베이스에서 사용하는 절차적 확장 언어.
--- 변수, 조건문(IF/CASE), 반복문(LOOP, WHILE) 사용 가능
-BEGIN
-	FOR I IN 1..1000000 -- I 는 1부터 100만까지 반복
-	LOOP
-		INSERT INTO TB_IDX_TEST
-		VALUES(I, 'TEST' || I); -- 이어쓰기
-	END LOOP;
-
-	COMMIT; -- 모든 삽입 작업을 커밋
-END;
-
-=======
 
 -- TB_IDX_TEST 테이블에
 -- 샘플데이터 100만개 삽입 (PL/SQL 사용)
@@ -647,7 +399,6 @@ BEGIN
 END;
 
 
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
 SELECT COUNT(*) FROM TB_IDX_TEST; -- 100만개 행이 삽입됨을 확인
 
 -- 인덱스를 사용해서 검색하는 방법
@@ -658,12 +409,6 @@ SELECT COUNT(*) FROM TB_IDX_TEST; -- 100만개 행이 삽입됨을 확인
 SELECT * FROM TB_IDX_TEST
 WHERE TEST_ID = 'TEST500000'; -- 0.030s
 
-<<<<<<< HEAD
-/* 인덱스 O */
--- TEST_NO가 500000인 행을 조회하기
-SELECT * FROM TB_IDX_TEST
-WHERE TEST_NO = 500000; -- 0.002s
-=======
 
 /* 인덱스 O */
 -- TEST_NO가 500000인 행을 조회하기
@@ -671,4 +416,3 @@ SELECT * FROM TB_IDX_TEST
 WHERE TEST_NO = 500000; -- 0.001s
 
 -- 보통 10~30배 차이
->>>>>>> 3eff88e19c6a21a4a860b9836218b16030d85f17
